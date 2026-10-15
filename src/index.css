@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html { scroll-behavior: smooth; scroll-padding-top: 6rem; }
+body { @apply bg-cream font-sans text-ink antialiased; }
+h1, h2, h3 { @apply font-display tracking-tight; }
+:focus-visible { outline: 3px solid #ED2229; outline-offset: 2px; }
+
+.grad-crimson { background-image: linear-gradient(122deg, #8F141B 0%, #ED2229 52%, #B8161E 100%); }
+.grad-text { background-image: linear-gradient(118deg, #F7A3A6 0%, #ED2229 55%, #B8161E 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.eyebrow { @apply text-xs font-medium uppercase tracking-[0.22em] text-crimson-700; }
+.arch { border-radius: 999px 999px 1.25rem 1.25rem; }
+
+/* Hero strands: the one orchestrated page-load moment */
+.strand { stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: draw 2.6s cubic-bezier(.2,.7,.2,1) forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.rise { opacity: 0; transform: translateY(16px); animation: rise .8s ease-out forwards; }
+@keyframes rise { to { opacity: 1; transform: none; } }
+.sheet { animation: sheet .35s ease-out both; }
+@keyframes sheet { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .strand { animation: none; stroke-dashoffset: 0; }
+  .rise, .sheet { animation: none; opacity: 1; transform: none; }
+}
