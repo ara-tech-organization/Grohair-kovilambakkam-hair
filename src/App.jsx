@@ -2,6 +2,11 @@ import { useEffect, useState } from 'react';
 import { ArrowRight, CheckCircle2, ClipboardList, Layers, MapPin, Mail, Menu, Phone, Plus, Sparkles, Stethoscope, X } from 'lucide-react';
 import { CLINIC } from './config.js';
 import logoUrl from './assets/logo.png';
+import heroBg from './assets/images/hero-bg.jpg';
+import imgPrp from './assets/images/treatments/prp.jpg';
+import imgGfc from './assets/images/treatments/gfc.jpg';
+import imgMeso from './assets/images/treatments/mesotherapy.jpg';
+import imgScalp from './assets/images/treatments/scalp-care.jpg';
 import LeadForm from './components/LeadForm.jsx';
 import CallPopup from './components/CallPopup.jsx';
 import Strands from './components/Strands.jsx';
@@ -18,13 +23,13 @@ const CONCERNS = [
 ];
 
 const TREATMENTS = [
-  ['G-Cell Therapy', 'Non-surgical', 'Explore a specialized hair treatment option for selected hair thinning and restoration concerns.'],
-  ['Advanced Gel PRP', 'Non-surgical', 'A PRP-based hair treatment option that may be suitable for certain types of hair loss.'],
-  ['Regen Pro 9 GFC', 'Non-surgical', 'Explore growth factor concentrate-based treatment options for selected hair thinning concerns.'],
-  ['Oxygen Laser Therapy', 'Non-surgical', 'A non-surgical hair treatment option focused on scalp care and hair restoration support.'],
+  ['G-Cell Therapy', 'Non-surgical', 'Explore a specialized hair treatment option for selected hair thinning and restoration concerns.', imgMeso],
+  ['Advanced Gel PRP', 'Non-surgical', 'A PRP-based hair treatment option that may be suitable for certain types of hair loss.', imgPrp],
+  ['Regen Pro 9 GFC', 'Non-surgical', 'Explore growth factor concentrate-based treatment options for selected hair thinning concerns.', imgGfc],
+  ['Oxygen Laser Therapy', 'Non-surgical', 'A non-surgical hair treatment option focused on scalp care and hair restoration support.', imgScalp],
   ['Hybrid Hair Transplant', 'Surgical', 'Explore surgical hair restoration options for suitable candidates experiencing baldness or a receding hairline.'],
   ['Cosmetic Hair System', 'Non-surgical', 'A non-surgical option for improving the appearance of hair coverage.'],
-  ['Advanced PRP Pro+ StemX27', 'Non-surgical', 'Discover this specialized hair treatment option through an individual consultation.'],
+  ['Advanced PRP Pro+ StemX27', 'Non-surgical', 'Discover this specialized hair treatment option through an individual consultation.', imgPrp],
   ['Beard Transplant', 'Surgical', 'Explore hair restoration options for selected beard coverage concerns.'],
 ];
 
@@ -169,6 +174,7 @@ function Header({ active }) {
 function Hero() {
   return (
     <section id="top" className="relative overflow-hidden bg-ink pt-32 text-white">
+      <img src={heroBg} alt="" aria-hidden fetchpriority="high" className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-25" />
       <div className="pointer-events-none absolute -left-40 top-10 h-[34rem] w-[34rem] rounded-full bg-crimson-700/30 blur-3xl" aria-hidden />
       <div className="pointer-events-none absolute -right-32 bottom-0 h-[28rem] w-[28rem] rounded-full bg-crimson-500/20 blur-3xl" aria-hidden />
       <div className="relative mx-auto grid max-w-6xl 2xl:max-w-7xl items-center gap-12 px-5 pb-20 pt-10 lg:grid-cols-[1.35fr_1fr] lg:pb-28 lg:pt-16">
@@ -237,10 +243,11 @@ function Treatments() {
       <div className="mx-auto max-w-6xl 2xl:max-w-7xl px-4 xs:px-5">
         <Heading eyebrow="Treatments" className="max-w-2xl">Explore Our Advanced Hair Treatments</Heading>
         <div className="mt-12 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-          {TREATMENTS.map(([name, kind, desc]) => {
+          {TREATMENTS.map(([name, kind, desc, img]) => {
             const surgical = kind === 'Surgical';
             return (
               <a key={name} href="#book" className={`group relative flex flex-col overflow-hidden rounded-3xl p-6 transition duration-300 hover:-translate-y-1.5 hover:shadow-soft ${surgical ? 'grad-crimson text-white' : 'bg-white text-ink'}`}>
+                {img && <img src={img} alt="" loading="lazy" decoding="async" className="-mx-6 -mt-6 mb-5 aspect-[3/2] w-[calc(100%+3rem)] max-w-none object-cover" />}
                 <h3 className="text-xl font-medium leading-snug">{name}</h3>
                 <p className={`mt-2 flex-1 text-sm leading-relaxed ${surgical ? 'text-white/85' : 'text-ink-body'}`}>{desc}</p>
                 <div className="mt-6 flex items-center justify-between">
