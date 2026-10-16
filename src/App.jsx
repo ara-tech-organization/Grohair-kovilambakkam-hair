@@ -4,6 +4,7 @@ import { CLINIC } from './config.js';
 import logoUrl from './assets/logo.png';
 import LeadForm from './components/LeadForm.jsx';
 import CallPopup from './components/CallPopup.jsx';
+import FormPopup from './components/FormPopup.jsx';
 import Strands from './components/Strands.jsx';
 import Gallery from './components/Gallery.jsx';
 
@@ -376,6 +377,7 @@ function Footer() {
 
 export default function App() {
   const active = useSectionRouting();
+  const [formDone, setFormDone] = useState(false);
   return (
     <>
       <Header active={active} />
@@ -390,7 +392,8 @@ export default function App() {
         <FinalCta />
       </main>
       <Footer />
-      <CallPopup />
+      <FormPopup onClose={() => setFormDone(true)} />
+      <CallPopup ready={formDone} />
     </>
   );
 }
