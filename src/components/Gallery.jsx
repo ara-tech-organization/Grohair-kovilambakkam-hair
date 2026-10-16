@@ -69,8 +69,8 @@ export default function Gallery() {
       <div className="mx-auto flex max-w-6xl flex-wrap items-end justify-between gap-6 px-4 xs:px-5 2xl:max-w-7xl">
         <div>
           <p className="text-xs font-medium uppercase tracking-[0.22em] text-blush-300">Gallery</p>
-          <h2 className="mt-3 text-3xl font-medium leading-tight sm:text-4xl">Treatment Results</h2>
-          <p className="mt-2 text-sm text-white/60">Individual results vary from person to person.</p>
+          <h2 className="mt-3 text-3xl font-medium leading-tight sm:text-4xl">Success Stories from Patients</h2>
+          <p className="mt-2 text-sm text-white/60">Visible transformations of our patients. Individual results vary from person to person.</p>
         </div>
         <div className="flex gap-3">
           <button onClick={() => goTo(index - 1)} aria-label="Previous result" className={arrow}><ArrowLeft size={20} aria-hidden /></button>
