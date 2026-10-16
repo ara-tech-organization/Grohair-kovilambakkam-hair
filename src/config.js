@@ -34,7 +34,8 @@ export const FORM = {
       date: na(v.date),
       time: 'N/A',
       treatment: na(FORM.treatment),
-      message: na(v.concern),
+      city: na(v.city),
+      message: na([v.concern, v.city && `City: ${v.city}`].filter(Boolean).join(' | ')),
       source: 'hair-landing-kovilambakkam',
     };
   },

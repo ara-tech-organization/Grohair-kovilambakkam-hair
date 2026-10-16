@@ -50,7 +50,70 @@ const FAQ = [
   ['How can I book an appointment?', 'Complete the enquiry form on this page. Our team can contact you to discuss your enquiry and appointment.'],
 ];
 
-const btnSolid = 'grad-crimson inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 font-medium text-white shadow-glow transition hover:brightness-110';
+// Path-based section routing: /concerns instead of /#concerns, with scroll-spy for the active menu item.
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+const SECTION_IDS = NAV.map(([, h]) => h.slice(1));
+const pathFor = (id) => (id && id !== 'top' ? `${BASE}/${id}` : `${BASE}/`);
+const idFromPath = () => decodeURIComponent(window.location.pathname.slice(BASE.length)).replace(/^\/|\/$/g, '');
+
+function useSectionRouting() {
+  const [active, setActive] = useState('');
+  useEffect(() => {
+    const go = (id, smooth) => {
+      const el = id === 'top' || !id ? null : document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' });
+      else window.scrollTo({ top: 0, behavior: smooth ? 'smooth' : 'auto' });
+    };
+    let lock = 0; // ignore scroll-spy URL updates while a click-initiated scroll is running
+    const unlock = () => { lock = 0; };
+
+    const onClick = (e) => {
+      const a = e.target.closest?.('a[href^="#"]');
+      if (!a || e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;
+      const id = a.getAttribute('href').slice(1);
+      e.preventDefault();
+      history.pushState(null, '', pathFor(id));
+      setActive(SECTION_IDS.includes(id) ? id : '');
+      lock = Date.now();
+      go(id, true);
+      clearTimeout(onClick.t); onClick.t = setTimeout(unlock, 900);
+    };
+
+    const onScroll = () => {
+      if (lock && Date.now() - lock < 900) return;
+      const nearBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+      let cur = '';
+      for (const id of SECTION_IDS) {
+        const el = document.getElementById(id);
+        if (el && el.getBoundingClientRect().top <= 140) cur = id;
+      }
+      if (nearBottom) cur = 'contact';
+      if (window.scrollY < 200 && cur !== 'treatments' && cur !== 'concerns') cur = '';
+      setActive(cur);
+      const path = pathFor(cur);
+      if (window.location.pathname !== path) history.replaceState(null, '', path);
+    };
+
+    const onPop = () => { const id = idFromPath(); setActive(SECTION_IDS.includes(id) ? id : ''); go(id, false); };
+
+    document.addEventListener('click', onClick);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('popstate', onPop);
+    // Initial deep link (/concerns, or legacy /#concerns)
+    const legacy = window.location.hash.slice(1);
+    const initial = legacy || idFromPath();
+    if (legacy) history.replaceState(null, '', pathFor(legacy));
+    if (initial) { setActive(SECTION_IDS.includes(initial) ? initial : ''); requestAnimationFrame(() => go(initial, false)); }
+    return () => {
+      document.removeEventListener('click', onClick);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('popstate', onPop);
+    };
+  }, []);
+  return active;
+}
+
+const btnSolid ='grad-crimson inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 font-medium text-white shadow-glow transition hover:brightness-110';
 const btnGhost = 'inline-flex items-center justify-center gap-2 rounded-full border border-crimson-700 px-6 py-3 font-medium text-crimson-700 transition hover:bg-crimson-700 hover:text-white';
 
 const Heading = ({ eyebrow, children, className = '' }) => (
@@ -60,7 +123,7 @@ const Heading = ({ eyebrow, children, className = '' }) => (
   </div>
 );
 
-function Header() {
+function Header({ active }) {
   const [open, setOpen] = useState(false);
   const [solid, setSolid] = useState(false);
   useEffect(() => {
@@ -76,7 +139,10 @@ function Header() {
             <img src={logoUrl} alt={CLINIC.name} className="h-10 w-auto sm:h-12" />
           </a>
           <nav className="hidden items-center gap-8 text-sm font-medium text-ink-soft lg:flex" aria-label="Primary">
-            {NAV.map(([l, h]) => <a key={h} href={h} className="relative transition hover:text-crimson-700 after:absolute after:-bottom-1 after:left-0 after:h-px after:w-0 after:bg-crimson-700 after:transition-all hover:after:w-full">{l}</a>)}
+            {NAV.map(([l, h]) => {
+              const on = active === h.slice(1);
+              return <a key={h} href={h} aria-current={on ? 'true' : undefined} className={`relative transition hover:text-crimson-700 after:absolute after:-bottom-1 after:left-0 after:h-px after:bg-crimson-700 after:transition-all hover:after:w-full ${on ? 'text-crimson-700 after:w-full' : 'after:w-0'}`}>{l}</a>;
+            })}
           </nav>
           <div className="flex items-center gap-3">
             {CLINIC.phone && <a href={`tel:${CLINIC.phone}`} className="hidden items-center gap-2 text-sm font-medium text-ink md:flex"><Phone size={16} className="text-crimson-700" aria-hidden />{CLINIC.phoneDisplay}</a>}
@@ -88,7 +154,7 @@ function Header() {
         </div>
         {open && (
           <nav className="border-t border-line px-5 pb-5 lg:hidden" aria-label="Mobile">
-            {NAV.map(([l, h]) => <a key={h} href={h} onClick={() => setOpen(false)} className="block border-b border-line py-3 font-medium text-ink">{l}</a>)}
+            {NAV.map(([l, h]) => <a key={h} href={h} onClick={() => setOpen(false)} aria-current={active === h.slice(1) ? 'true' : undefined} className={`block border-b border-line py-3 font-medium ${active === h.slice(1) ? 'text-crimson-700' : 'text-ink'}`}>{l}</a>)}
             <div className="mt-4 flex flex-col gap-3">
               <a href="#book" onClick={() => setOpen(false)} className={btnSolid}>Book consultation</a>
               {CLINIC.phone && <a href={`tel:${CLINIC.phone}`} className={btnGhost}><Phone size={18} aria-hidden />Call {CLINIC.phoneDisplay}</a>}
@@ -114,7 +180,7 @@ function Hero() {
             Advanced Hair Fall Treatment &amp; Hair Restoration in <em className="grad-text pr-2">Chennai</em>
           </h1>
           <p className="rise mt-6 max-w-xl text-lg leading-relaxed text-blush-200/85" style={{ animationDelay: '.4s' }}>
-            Explore advanced hair regrowth, hair restoration and hair transplant options at Advanced GroHair &amp; GloSkin, Kovilambakkam. Find treatment options tailored to your hair concerns with a personalized consultation.
+            Explore advanced hair regrowth, hair restoration and hair transplant options at Advanced GroHair &amp; GloSkin, Kovilambakkam.
           </p>
           <ul className="rise mt-9 space-y-3" style={{ animationDelay: '.55s' }}>
             {['Advanced Hair Regrowth Treatments', 'Non-Surgical Hair Restoration Options', 'Hair Transplant Solutions'].map((t) => (
@@ -309,9 +375,10 @@ function Footer() {
 }
 
 export default function App() {
+  const active = useSectionRouting();
   return (
     <>
-      <Header />
+      <Header active={active} />
       <main>
         <Hero />
         <Concerns />

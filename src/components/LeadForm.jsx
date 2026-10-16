@@ -21,7 +21,7 @@ function encode(payload, format) {
 
 /** variant="date": name, mobile, optional date. variant="concern": name, mobile, hair concern. */
 export default function LeadForm({ variant = 'date', id, submitLabel, dark = false }) {
-  const [values, setValues] = useState({ name: '', phone: '', date: '', concern: '' });
+  const [values, setValues] = useState({ name: '', phone: '', city: '', date: '', concern: '' });
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState('idle'); // idle | loading | success | error
 
@@ -31,6 +31,7 @@ export default function LeadForm({ variant = 'date', id, submitLabel, dark = fal
     const e = {};
     if (values.name.trim().length < 2) e.name = 'Enter your full name.';
     if (!PHONE_RE.test(values.phone.replace(/[\s-]/g, ''))) e.phone = 'Enter a valid 10-digit mobile number.';
+    if (values.city.trim().length < 2) e.city = 'Enter your city.';
     if (variant === 'concern' && !values.concern.trim()) e.concern = 'Tell us your hair concern.';
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -42,7 +43,7 @@ export default function LeadForm({ variant = 'date', id, submitLabel, dark = fal
     setStatus('loading');
     try {
       if (!FORM.apiUrl) throw new Error('API endpoint not configured (src/config.js).');
-      const payload = FORM.buildPayload({ ...values, name: values.name.trim(), phone: values.phone.replace(/[\s-]/g, '') });
+      const payload = FORM.buildPayload({ ...values, name: values.name.trim(), city: values.city.trim(), phone: values.phone.replace(/[\s-]/g, '') });
       const { body, headers } = encode(payload, FORM.format);
       const res = await fetch(FORM.apiUrl, { method: 'POST', headers, body });
       if (!res.ok) throw new Error(`Request failed (${res.status})`);
@@ -88,6 +89,13 @@ export default function LeadForm({ variant = 'date', id, submitLabel, dark = fal
           className={`${field} ${errors.phone ? 'border-red-500' : 'border-ink/15'}`}
           value={values.phone} onChange={set('phone')} aria-invalid={!!errors.phone} aria-describedby={errors.phone ? `${id}-phone-err` : undefined} />
         {err('phone')}
+      </div>
+      <div>
+        <label htmlFor={`${id}-city`} className={label}>City</label>
+        <input id={`${id}-city`} autoComplete="address-level2" placeholder="Your city"
+          className={`${field} ${errors.city ? 'border-red-500' : 'border-ink/15'}`}
+          value={values.city} onChange={set('city')} aria-invalid={!!errors.city} aria-describedby={errors.city ? `${id}-city-err` : undefined} />
+        {err('city')}
       </div>
       {variant === 'date' ? (
         <div>
